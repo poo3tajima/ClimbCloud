@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class PlayerController : MonoBehaviour
 {
@@ -20,8 +21,10 @@ public class PlayerController : MonoBehaviour
     void Update()
     {
         // ジャンプする
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (Input.GetKeyDown(KeyCode.Space) &&
+            this.rigid2D.velocity.y == 0)
         {
+            this.animator.SetTrigger("JumpTrigger");
             this.rigid2D.AddForce(transform.up * this.jumpForce);
         }
 
@@ -47,12 +50,26 @@ public class PlayerController : MonoBehaviour
         }
 
         // プレイヤーの速度に応じてアニメーション速度を変える
-        this.animator.speed = speedx / 2.0f;
+        if (this.rigid2D.velocity.y == 0)
+        {
+            this.animator.speed = speedx / 2.0f;
+        }
+        else
+        {
+            this.animator.speed = 1.0f;
+        }
+
+        // 画面の外に出た場合は最初にもどる
+        if (transform.position.y < -10)
+        {
+            SceneManager.LoadScene("GameScene");
+        }
     }
 
     // ゴールに到達
     void OnTriggerEnter2D(Collider2D collision)
     {
         Debug.Log("ゴール");
+        SceneManager.LoadScene("ClearScene");
     }
 }
